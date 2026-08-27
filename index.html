@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시공관리 AI 업무지원 시스템</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Noto Sans KR", Arial, sans-serif;
+    background: #f4f6fa;
+    color: #172033;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 100vh;
+    background: #172033;
+    color: white;
+    padding: 25px 15px;
+}
+
+.logo {
+    padding: 10px 12px 25px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.logo span {
+    display: block;
+    margin-top: 7px;
+    font-size: 11px;
+    color: #9da8ba;
+    font-weight: 400;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.menu button {
+    border: none;
+    background: transparent;
+    color: #cbd3df;
+    padding: 13px;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.menu button:hover,
+.menu button.active {
+    background: #293750;
+    color: white;
+}
+
+.main {
+    margin-left: 240px;
+    padding: 32px;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 25px;
+}
+
+.subtitle {
+    color: #667085;
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+.badge {
+    background: #edf2ff;
+    color: #3156c8;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #e5e8ee;
+    border-radius: 13px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(20,30,50,0.04);
+}
+
+.metric-title {
+    color: #667085;
+    font-size: 12px;
+}
+
+.metric {
+    margin-top: 8px;
+    font-size: 27px;
+    font-weight: 800;
+}
+
+.section {
+    margin-top: 20px;
+}
+
+.section-title {
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 13px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 13px 10px;
+    border-bottom: 1px solid #edf0f4;
+    font-size: 13px;
+    text-align: left;
+}
+
+.table th {
+    color: #667085;
+    font-weight: 700;
+}
+
+.good {
+    color: #16864a;
+}
+
+.warning {
+    color: #bd7700;
+}
+
+.danger {
+    color: #c62828;
+}
+
+.status {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progress {
+    height: 9px;
+    flex: 1;
+    background: #e9edf4;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #315bd5;
+    border-radius: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #d6dbe5;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+}
+
+.field textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+.button-area {
+    margin-top: 18px;
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    border: none;
+    border-radius: 8px;
+    padding: 11px 16px;
+    background: #315bd5;
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn.gray {
+    background: #eef1f6;
+    color: #344054;
+}
+
+.result {
+    border: 1px solid #e5e8ee;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.result-title {
+    font-weight: 800;
+    margin-bottom: 7px;
+}
+
+.result-text {
+    color: #667085;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.notice {
+    background: #fff8e5;
+    border: 1px solid #f1d58d;
+    padding: 14px;
+    border-radius: 9px;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.upload-box {
+    border: 2px dashed #cbd3df;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    color: #667085;
+}
+
+.document {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #edf0f4;
+    font-size: 13px;
+}
+
+.check-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 13px 0;
+    border-bottom: 1px solid #edf0f4;
+    font-size: 13px;
+}
+
+.pill {
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.pill.good {
+    background: #e9f7ef;
+}
+
+.pill.warning {
+    background: #fff3d8;
+}
+
+.pill.danger {
+    background: #ffe8e8;
+}
+
+.tax-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr 0.8fr 1.4fr;
+    gap: 8px;
+    align-items: center;
+}
+
+.tax-grid input,
+.tax-grid select {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #d7dce5;
+    border-radius: 7px;
+}
+
+.tax-head {
+    font-size: 11px;
+    color: #667085;
+    font-weight: 700;
+}
+
+.tax-row {
+    padding: 10px 0;
+    border-top: 1px solid #edf0f4;
+}
+
+@media(max-width: 900px) {
+
+    .sidebar {
+        width: 190px;
+    }
+
+    .main {
+        margin-left: 190px;
+        padding: 20px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     SIDEBAR
+========================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        Contract AI
+        <span>한국원자력환경공단<br>시공관리 AI 업무지원</span>
+    </div>
+
+    <div class="menu">
+
+        <button class="active" onclick="showPage('dashboard',this)">
+            ▦ 대시보드
+        </button>
+
+        <button onclick="showPage('contract',this)">
+            ＋ 계약 등록
+        </button>
+
+        <button onclick="showPage('documents',this)">
+            ▤ 서류 검토
+        </button>
+
+        <button onclick="showPage('progress',this)">
+            ◔ 공정·기성
+        </button>
+
+        <button onclick="showPage('legal',this)">
+            ✓ 계약 법적검토
+        </button>
+
+        <button onclick="showPage('tax',this)">
+            ₩ 취득세 검토
+        </button>
+
+        <button onclick="showPage('completion',this)">
+            ◆ 준공 검토
+        </button>
+
+        <button onclick="showPage('report',this)">
+            ▣ 검토보고서
+        </button>
+
+    </div>
+
+</aside>
+
+
+<main class="main">
+
+
+<!-- =========================
+     DASHBOARD
+========================= -->
+
+<section id="dashboard" class="page active">
+
+    <div class="header">
+
+        <div>
+            <h1>시공관리 AI 업무지원</h1>
+            <div class="subtitle">
+                계약부터 준공·취득세까지 통합 검토
+            </div>
+        </div>
+
+        <span class="badge">
+            공기업 업무지원 Prototype
+        </span>
+
+    </div>
+
+
+    <div class="grid">
+
+        <div class="card">
+            <div class="metric-title">전체 계약</div>
+            <div class="metric" id="totalContracts">3</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-title">진행 중</div>
+            <div class="metric">2</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-title">보완 필요</div>
+            <div class="metric">1</div>
+        </div>
+
+        <div class="card">
+            <div class="metric-title">준공 검토</div>
+            <div class="metric">1</div>
+        </div>
+
+    </div>
+
+
+    <div class="card section">
+
+        <div class="section-title">
+            진행 중 계약
+        </div>
+
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>계약명</th>
+                    <th>유형</th>
+                    <th>계약금액</th>
+                    <th>공정률</th>
+                    <th>상태</th>
+                </tr>
+            </thead>
+
+            <tbody id="contractTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="section">
+
+        <div class="grid">
+
+            <div class="card">
+
+                <div class="section-title">
+                    오늘의 검토사항
+                </div>
+
+                <div class="result">
+
+                    <div class="result-title warning">
+                        ⚠ 문서 금액 불일치
+                    </div>
+
+                    <div class="result-text">
+                        계약서와 산출내역서의 금액을 교차 확인해야 합니다.
+                    </div>
+
+                </div>
+
+                <div class="result">
+
+                    <div class="result-title good">
+                        ✓ 필수서류 4/5
+                    </div>
+
+                    <div class="result-text">
+                        기성검사 관련 서류가 필요합니다.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="section-title">
+                    시스템 원칙
+                </div>
+
+                <div class="notice">
+
+                    AI가 법적 판단을 임의로 확정하지 않습니다.
+
+                    <br><br>
+
+                    <b>
+                    법령 Rule → 증빙 → 계산 Engine → AI 설명
+                    </b>
+
+                    순서로 검토하도록 설계합니다.
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     CONTRACT
+========================= -->
+
+<section id="contract" class="page">
+
+    <div class="header">
+
+        <div>
+            <h1>계약 등록</h1>
+
+            <div class="subtitle">
+                계약 정보를 입력하면 검토 항목을 생성합니다.
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="form-grid">
+
+            <div class="field">
+
+                <label>계약명</label>
+
+                <input
+                    id="contractName"
+                    value="○○ 처분시설 건설공사"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>계약번호</label>
+
+                <input
+                    id="contractNo"
+                    value="2026-001"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>계약 유형</label>
+
+                <select id="contractType">
+
+                    <option>공사</option>
+                    <option>용역</option>
+                    <option>물품</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>계약 방식</label>
+
+                <select id="contractMethod">
+
+                    <option>일반경쟁</option>
+                    <option>제한경쟁</option>
+                    <option>수의계약</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>계약금액</label>
+
+                <input
+                    id="contractAmount"
+                    type="number"
+                    value="1000000000"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>계약기간</label>
+
+                <input
+                    id="contractPeriod"
+                    value="2026.01.01 ~ 2026.12.31"
+                >
+
+            </div>
+
+
+            <div class="field full">
+
+                <label>공사·작업 내용</label>
+
+                <textarea id="contractDescription">시설 건설 및 유지보수 관련 공사</textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="button-area">
+
+            <button
+                class="btn"
+                onclick="contractAI()"
+            >
+                AI 사전검토
+            </button>
+
+            <button
+                class="btn gray"
+                onclick="saveContract()"
+            >
+                계약 저장
+            </button>
+
+        </div>
+
+
+        <div id="contractAIResult"></div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     DOCUMENTS
+========================= -->
+
+<section id="documents" class="page">
+
+    <div class="header">
+
+        <div>
+            <h1>서류 검토</h1>
+
+            <div class="subtitle">
+                계약 관련 서류의 제출 및 적정성을 확인합니다.
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="grid" style="grid-template-columns:1fr 1fr;">
+
+        <div class="card">
+
+            <div class="section-title">
+                필수서류
+            </div>
+
+
+            <div class="check-row">
+                계약서
+                <span class="pill good">제출</span>
+            </div>
+
+            <div class="check-row">
+                산출내역서
+                <span class="pill good">제출</span>
+            </div>
+
+            <div class="check-row">
+                작업지시서
+                <span class="pill good">제출</span>
+            </div>
+
+            <div class="check-row">
+                착수계
+                <span class="pill good">제출</span>
+            </div>
+
+            <div class="check-row">
+                기성검사서
+                <span class="pill warning">미제출</span>
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="section-title">
+                문서 업로드
+            </div>
+
+
+            <div class="upload-box">
+
+                <input
+                    type="file"
+                    id="documentUpload"
+                    multiple
+                    accept=".pdf,.xlsx,.xls,.doc,.docx,.jpg,.jpeg,.png"
+                >
+
+                <p>
+                    PDF / Excel / Word / 이미지
+                </p>
+
+            </div>
+
+
+            <div id="documentList"></div>
+
+
+            <div class="button-area">
+
+                <button
+                    class="btn"
+                    onclick="documentAI()"
+                >
+                    AI 문서 사전검토
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="documentResult"
+        class="card section"
+        style="display:none;"
+    ></div>
+
+</section>
+
+
+<!-- =========================
+     PROGRESS
+========================= -->
+
+<section id="progress" class="page">
+
+    <div class="header">
+
+        <div>
+            <h1>공정·기성 관리</h1>
+
+            <div class="subtitle">
+                기성률과 기성금액을 계산합니다.
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="progress-wrap">
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar"
+                    id="mainProgress"
+                    style="width:70%;"
+                ></div>
+
+            </div>
+
+            <strong id="progressText">
+                70%
+            </strong>
+
+        </div>
+
+
+        <div class="form-grid section">
+
+            <div class="field">
+
+                <label>
+                    총 계약금액
+                </label>
+
+                <input
+                    id="totalAmount"
+                    type="number"
+                    value="1000000000"
+                    oninput="calculateProgress()"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    인정 기성률
+                </label>
+
+                <input
+                    id="progressRate"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value="70"
+                    oninput="calculateProgress()"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    선급금
+                </label>
+
+                <input
+                    id="advance"
+                    type="number"
+                    value="100000000"
+                    oninput="calculateProgress()"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    기지급 기성금
+                </label>
+
+                <input
+                    id="previousPaid"
+                    type="number"
+                    value="300000000"
+                    oninput="calculateProgress()"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    금회 공제액
+                </label>
+
+                <input
+                    id="deduction"
+                    type="number"
+                    value="0"
+                    oninput="calculateProgress()"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="grid section">
+
+            <div class="card">
+
+                <div class="metric-title">
+                    누적 인정 기성금액
+                </div>
+
+                <div
+                    class="metric"
+                    id="recognizedAmount"
+                >
+                    700,000,000원
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="metric-title">
+                    잔여 계약금액
+                </div>
+
+                <div
+                    class="metric"
+                    id="remainingAmount"
+                >
+                    300,000,000원
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="metric-title">
+                    금회 지급예정액
+                </div>
+
+                <div
+                    class="metric"
+                    id="currentPayment"
+                >
+                    400,000,000원
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="metric-title">
+                    계산 검증
+                </div>
+
+                <div
+                    class="metric good"
+                    id="calculationStatus"
+                >
+                    정상
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="notice section">
+
+            기성금액 계산은 AI가 아니라 별도의 계산 로직에서 수행하도록
+            설계하는 것이 안전합니다.
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     LEGAL
+========================= -->
+
+<section id="legal" class="page">
+
+    <div class="header">
+
+        <div>
+
+            <h1>계약 법적검토</h1>
+
+            <div class="subtitle">
+                법령·규정과 계약자료를 비교합니다.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="result">
+
+            <div class="result-title good">
+                ✓ 계약 기본사항 — 예비 적정
+            </div>
+
+            <div class="result-text">
+
+                계약서의 기본 정보와 필수사항을 검토합니다.
+
+            </div>
+
+            <div class="subtitle">
+
+                관련 규정:
+                공기업·준정부기관 계약사무규칙
+
+            </div>
+
+        </div>
+
+
+        <div class="result">
+
+            <div class="result-title warning">
+                △ 수의계약 — 확인 필요
+            </div>
+
+            <div class="result-text">
+
+                수의계약이라면 해당 사유와 증빙자료가
+                관련 법령 및 기관 규정에 부합하는지 확인해야 합니다.
+
+            </div>
+
+        </div>
+
+
+        <div class="result">
+
+            <div class="result-title warning">
+                △ 기성검사 — 보완 필요
+            </div>
+
+            <div class="result-text">
+
+                기성검사 관련 서류가 제출되지 않았습니다.
+
+            </div>
+
+        </div>
+
+
+        <div class="notice section">
+
+            법령 검토 기능의 최종 버전에서는
+            법령 조문을 별도 Rule DB에 저장하고
+            각 판단 결과에 실제 조문과 시행일을 연결해야 합니다.
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     TAX
+========================= -->
+
+<section id="tax" class="page">
+
+    <div class="header">
+
+        <div>
+
+            <h1>취득세 검토</h1>
+
+            <div class="subtitle">
+                준공내역서를 기준으로 취득세 과세표준을 검토합니다.
+            </div>
+
+        </div>
+
+        <span class="badge">
+            세무 예비검토
+        </span>
+
+    </div>
+
+
+    <div class="notice">
+
+        <b>취득세 검토 구조</b>
+
+        <br>
+
+        준공내역서
+        → 공사비 항목 추출
+        → 비용 성격 분류
+        → 법령·판례 Rule 검토
+        → 과세표준 포함/제외/추가검토
+        → 취득세 계산
+
+        <br><br>
+
+        AI가 세액을 임의로 결정하지 않고
+        법령 및 증빙을 기준으로 검토하도록 설계합니다.
+
+    </div>
+
+
+    <div class="card section">
+
+        <div class="section-title">
+            ① 준공·취득 정보
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="field">
+
+                <label>
+                    시설/공사명
+                </label>
+
+                <input
+                    id="taxName"
+                    value="○○ 처분시설 건설공사"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    취득 유형
+                </label>
+
+                <select id="taxAcquisitionType">
+
+                    <option>
+                        건축물 신축
+                    </option>
+
+                    <option>
+                        건축물 증축
+                    </option>
+
+                    <option>
+                        건축물 개수
+                    </option>
+
+                    <option>
+                        시설물 취득
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    취득일
+                </label>
+
+                <input
+                    id="taxDate"
+                    type="date"
+                    value="2026-08-27"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    소재지
+                </label>
+
+                <input
+                    id="taxLocation"
+                    value="전라북도 ○○군"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    준공내역서
+                </label>
+
+                <input
+                    id="taxFile"
+                    type="file"
+                    accept=".xlsx,.xls,.csv,.pdf"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    시설 설명
+                </label>
+
+                <input
+                    id="facilityDescription"
+                    value="건축물 및 부합·종속 시설"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="button-area">
+
+            <button
+                class="btn"
+                onclick="loadTaxSample()"
+            >
+                샘플 내역 불러오기
+            </button>
+
+            <button
+                class="btn gray"
+                onclick="taxAIReview()"
+            >
+                세무 예비검토
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="card section">
+
+        <div class="section-title">
+            ② 공사비 항목별 검토
+        </div>
+
+
+        <div class="tax-grid">
+
+            <div class="tax-head">
+                항목
+            </div>
+
+            <div class="tax-head">
+                금액
+            </div>
+
+            <div class="tax-head">
+                분류
+            </div>
+
+            <div class="tax-head">
+                판단
+            </div>
+
+        </div>
+
+
+        <div id="taxItems"></div>
+
+
+        <div class="button-area">
+
+            <button
+                class="btn gray"
+                onclick="addTaxItem()"
+            >
+                + 항목 추가
+            </button>
+
+            <button
+                class="btn"
+                onclick="calculateTax()"
+            >
+                과세표준 계산
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="grid section">
+
+        <div class="card">
+
+            <div class="metric-title">
+                총 준공금액
+            </div>
+
+            <div
+                class="metric"
+                id="taxTotal"
+            >
+                0원
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="metric-title">
+                예비 과세표준
+            </div>
+
+            <div
+                class="metric"
+                id="taxBase"
+            >
+                0원
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="metric-title">
+                추가 확인 금액
+            </div>
+
+            <div
+                class="metric warning"
+                id="taxReviewAmount"
+            >
+                0원
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="metric-title">
+                예비 취득세
+            </div>
+
+            <div
+                class="metric"
+                id="taxAmount"
+            >
+                0원
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card section">
+
+        <div class="section-title">
+            ③ 법령·판례 근거
+        </div>
+
+
+        <div class="result">
+
+            <div class="result-title">
+                과세표준
+            </div>
+
+            <div class="result-text">
+
+                취득세 과세표준은 취득 당시 가액을 기준으로
+                관련 법령상 산정방법을 검토합니다.
+
+                <br><br>
+
+                <b>
+                지방세법 관련 규정
+                </b>
+
+            </div>
+
+        </div>
+
+
+        <div class="result">
+
+            <div class="result-title">
+                부합·종속 시설
+            </div>
+
+            <div class="result-text">
+
+                건축물에 부합하거나 종속되는 시설의 설치비가
+                취득가격에 포함되는지 시설별로 검토해야 합니다.
+
+                <br><br>
+
+                <b>
+                관련 대법원 판례 검토 필요
+                </b>
+
+            </div>
+
+        </div>
+
+
+        <div class="notice">
+
+            실제 적용 시에는 법령 개정일을 기준으로
+            당시 시행 법령을 적용하고,
+            관련 판례의 사실관계와 현재 계약의 사실관계를
+            비교하도록 Rule Engine을 구축해야 합니다.
+
+        </div>
+
+    </div>
+
+
+    <div class="card section">
+
+        <div class="section-title">
+            ④ 취득세 시뮬레이션
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="field">
+
+                <label>
+                    예비 과세표준
+                </label>
+
+                <input
+                    id="taxBaseInput"
+                    readonly
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    시뮬레이션 세율
+                </label>
+
+                <input
+                    id="taxRate"
+                    type="number"
+                    step="0.0001"
+                    value="0.028"
+                    oninput="calculateTax()"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="notice section">
+
+            ※ 입력된 세율은 시뮬레이션용입니다.
+            실제 취득세율은 취득물건의 종류,
+            용도, 소재지, 중과 및 감면 여부 등을
+            확인한 후 적용해야 합니다.
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     COMPLETION
+========================= -->
+
+<section id="completion" class="page">
+
+    <div class="header">
+
+        <div>
+
+            <h1>준공 검토</h1>
+
+            <div class="subtitle">
+                준공 관련 서류와 계약 이행상태를 확인합니다.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="check-row">
+            준공계
+            <span class="pill good">확인</span>
+        </div>
+
+        <div class="check-row">
+            준공내역서
+            <span class="pill good">확인</span>
+        </div>
+
+        <div class="check-row">
+            준공검사조서
+            <span class="pill warning">검토 필요</span>
+        </div>
+
+        <div class="check-row">
+            하자보증 관련 서류
+            <span class="pill warning">검토 필요</span>
+        </div>
+
+        <div class="check-row">
+            취득세 관련 자료
+            <span class="pill warning">검토 필요</span>
+        </div>
+
+    </div>
+
+
+    <div class="notice section">
+
+        준공 검토 완료 후 취득세 검토 모듈과 연계하여
+        준공내역서의 공사비를 자동으로 세무 검토 대상으로
+        전달할 수 있도록 확장할 수 있습니다.
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     REPORT
+========================= -->
+
+<section id="report" class="page">
+
+    <div class="header">
+
+        <div>
+
+            <h1>검토보고서</h1>
+
+            <div class="subtitle">
+                현재 입력된 계약·기성·취득세 정보를 요약합니다.
+            </div>
+
+        </div>
+
+        <button
+            class="btn"
+            onclick="window.print()"
+        >
+            인쇄 / PDF 저장
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2 id="reportTitle">
+            ○○ 처분시설 건설공사
+        </h2>
+
+        <hr>
+
+        <h3>
+            Ⅰ. 계약 개요
+        </h3>
+
+        <p id="reportContract">
+        </p>
+
+
+        <h3>
+            Ⅱ. 공정·기성
+        </h3>
+
+        <p>
+            인정 기성률:
+            <b id="reportProgress">
+                70%
+            </b>
+        </p>
+
+
+        <h3>
+            Ⅲ. 취득세 예비검토
+        </h3>
+
+        <p>
+
+            예비 과세표준:
+            <b id="reportTaxBase">
+                0원
+            </b>
+
+            <br>
+
+            예비 취득세:
+            <b id="reportTax">
+                0원
+            </b>
+
+        </p>
+
+
+        <h3>
+            Ⅳ. 종합의견
+        </h3>
+
+        <p>
+
+            현재 입력자료를 기준으로 예비 검토한 결과입니다.
+            실제 업무 적용 시 최신 법령,
+            기관 내부규정 및 원본 증빙자료를 확인한 후
+            최종 판단하여야 합니다.
+
+        </p>
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+<script>
+
+/* =========================
+   기본 데이터
+========================= */
+
+let contracts = [
+
+    {
+        name: "○○ 처분시설 건설공사",
+        type: "공사",
+        amount: 1000000000,
+        progress: 70,
+        status: "보완 필요"
+    },
+
+    {
+        name: "전산시스템 유지관리 용역",
+        type: "용역",
+        amount: 240000000,
+        progress: 42,
+        status: "검토 중"
+    },
+
+    {
+        name: "사무용 장비 구매",
+        type: "물품",
+        amount: 80000000,
+        progress: 100,
+        status: "완료"
+    }
+
+];
+
+
+/* =========================
+   페이지 이동
+========================= */
+
+function showPage(pageId, button) {
+
+    document.querySelectorAll(".page")
+        .forEach(page => page.classList.remove("active"));
+
+    document.getElementById(pageId)
+        .classList.add("active");
+
+    document.querySelectorAll(".menu button")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+    if(pageId === "report") {
+        createReport();
+    }
+
+}
+
+
+/* =========================
+   금액 포맷
+========================= */
+
+function money(value) {
+
+    return Number(value || 0)
+        .toLocaleString("ko-KR") + "원";
+
+}
+
+
+/* =========================
+   대시보드
+========================= */
+
+function renderContracts() {
+
+    const table =
+        document.getElementById("contractTable");
+
+    table.innerHTML = "";
+
+    contracts.forEach(contract => {
+
+        table.innerHTML += `
+
+        <tr>
+
+            <td>
+                ${contract.name}
+            </td>
+
+            <td>
+                ${contract.type}
+            </td>
+
+            <td>
+                ${money(contract.amount)}
+            </td>
+
+            <td>
+
+                <div class="progress-wrap">
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-bar"
+                            style="width:${contract.progress}%"
+                        ></div>
+
+                    </div>
+
+                    ${contract.progress}%
+
+                </div>
+
+            </td>
+
+            <td
+                class="status ${
+                    contract.status === "완료"
+                    ? "good"
+                    : "warning"
+                }"
+            >
+                ${contract.status}
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+    document.getElementById("totalContracts")
+        .textContent = contracts.length;
+
+}
+
+renderContracts();
+
+
+/* =========================
+   계약 AI
+========================= */
+
+function contractAI() {
+
+    const name =
+        document.getElementById("contractName").value;
+
+    const method =
+        document.getElementById("contractMethod").value;
+
+    let html = `
+
+        <div class="result">
+
+            <div class="result-title good">
+                ✓ 계약 기본정보 분석 완료
+            </div>
+
+            <div class="result-text">
+
+                계약명:
+                ${name}
+
+                <br>
+
+                계약방식:
+                ${method}
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    if(method === "수의계약") {
+
+        html += `
+
+        <div class="result">
+
+            <div class="result-title warning">
+
+                △ 수의계약 사유 확인 필요
+
+            </div>
+
+            <div class="result-text">
+
+                수의계약 사유와 관련 증빙자료를
+                확인해야 합니다.
+
+            </div>
+
+        </div>
+
+        `;
+
+    }
+
+
+    html += `
+
+        <div class="result">
+
+            <div class="result-title warning">
+
+                △ 서류 업로드 필요
+
+            </div>
+
+            <div class="result-text">
+
+                계약서,
+                산출내역서,
+                작업지시서 등을 업로드하면
+                문서 간 금액·기간·업체명 등을
+                대조하는 구조로 확장할 수 있습니다.
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.getElementById("contractAIResult")
+        .innerHTML = html;
+
+}
+
+
+/* =========================
+   계약 저장
+========================= */
+
+function saveContract() {
+
+    const name =
+        document.getElementById("contractName").value;
+
+    const type =
+        document.getElementById("contractType").value;
+
+    const amount =
+        Number(document.getElementById("contractAmount").value);
+
+    contracts.unshift({
+
+        name,
+        type,
+        amount,
+        progress: 0,
+        status: "검토 중"
+
+    });
+
+    renderContracts();
+
+    alert("계약이 저장되었습니다.");
+
+}
+
+
+/* =========================
+   파일 업로드
+========================= */
+
+document.getElementById("documentUpload")
+.addEventListener("change", function() {
+
+    const list =
+        document.getElementById("documentList");
+
+    list.innerHTML = "";
+
+    [...this.files].forEach(file => {
+
+        list.innerHTML += `
+
+            <div class="document">
+
+                <span>
+                    📄 ${file.name}
+                </span>
+
+                <span>
+                    ${Math.round(file.size / 1024)}
+                    KB
+                </span>
+
+            </div>
+
+        `;
+
+    });
+
+});
+
+
+/* =========================
+   문서 AI
+========================= */
+
+function documentAI() {
+
+    const result =
+        document.getElementById("documentResult");
+
+    result.style.display = "block";
+
+    result.innerHTML = `
+
+        <div class="section-title">
+            AI 문서 사전검토
+        </div>
+
+        <div class="result">
+
+            <div class="result-title good">
+                ✓ 파일 수신 완료
+            </div>
+
+            <div class="result-text">
+
+                실제 버전에서는
+
+                <br><br>
+
+                OCR
+                → 문서 구조화
+                → 핵심정보 추출
+                → 문서 간 대조
+                → 법령 Rule Engine
+
+                순서로 분석합니다.
+
+            </div>
+
+        </div>
+
+        <div class="notice">
+
+            현재 버전은 브라우저 프로토타입입니다.
+            실제 PDF 내용을 읽고 법령 적정성을 판단하려면
+            백엔드 OCR 및 AI API 연결이 필요합니다.
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================
+   기성 계산
+========================= */
+
+function calculateProgress() {
+
+    const total =
+        Number(document.getElementById("totalAmount").value) || 0;
+
+    const rate =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                Number(document.getElementById("progressRate").value) || 0
+            )
+        );
+
+    const paid =
+        Number(document.getElementById("previousPaid").value) || 0;
+
+    const deduction =
+        Number(document.getElementById("deduction").value) || 0;
+
+
+    const recognized =
+        total * rate / 100;
+
+    const remaining =
+        total - recognized;
+
+    const current =
+        Math.max(
+            0,
+            recognized - paid - deduction
+        );
+
+
+    document.getElementById("mainProgress")
+        .style.width = rate + "%";
+
+    document.getElementById("progressText")
+        .textContent = rate + "%";
+
+
+    document.getElementById("recognizedAmount")
+        .textContent = money(recognized);
+
+    document.getElementById("remainingAmount")
+        .textContent = money(remaining);
+
+    document.getElementById("currentPayment")
+        .textContent = money(current);
+
+
+    const status =
+        document.getElementById("calculationStatus");
+
+
+    if(recognized <= total && paid <= recognized) {
+
+        status.textContent = "정상";
+
+        status.className =
+            "metric good";
+
+    } else {
+
+        status.textContent = "오류";
+
+        status.className =
+            "metric danger";
+
+    }
+
+}
+
+calculateProgress();
+
+
+/* =========================
+   취득세 샘플
+========================= */
+
+const taxSample = [
+
+    {
+        name: "직접공사비",
+        amount: 420000000,
+        classification: "포함",
+        judgment: "과세표준 후보"
+    },
+
+    {
+        name: "설계비",
+        amount: 30000000,
+        classification: "검토",
+        judgment: "취득 관련성 확인"
+    },
+
+    {
+        name: "감리비",
+        amount: 20000000,
+        classification: "검토",
+        judgment: "계약내용 확인"
+    },
+
+    {
+        name: "부가가치세",
+        amount: 47000000,
+        classification: "제외",
+        judgment: "별도 확인"
+    },
+
+    {
+        name: "일반관리비",
+        amount: 10000000,
+        classification: "검토",
+        judgment: "원가명세 확인"
+    },
+
+    {
+        name: "부합·종속 시설 설치비",
+        amount: 80000000,
+        classification: "포함",
+        judgment: "시설 성격 확인"
+    }
+
+];
+
+
+function createTaxRow(item) {
+
+    return `
+
+    <div class="tax-grid tax-row">
+
+        <input
+            value="${item.name}"
+        >
+
+        <input
+            type="number"
+            value="${item.amount}"
+            oninput="calculateTax()"
+        >
+
+        <select onchange="calculateTax()">
+
+            <option
+                ${item.classification === "포함" ? "selected" : ""}
+            >
+                포함
+            </option>
+
+            <option
+                ${item.classification === "제외" ? "selected" : ""}
+            >
+                제외
+            </option>
+
+            <option
+                ${item.classification === "검토" ? "selected" : ""}
+            >
+                검토
+            </option>
+
+        </select>
+
+        <span class="${
+            item.classification === "포함"
+            ? "good"
+            : item.classification === "검토"
+            ? "warning"
+            : ""
+        }">
+
+            ${item.judgment}
+
+        </span>
+
+    </div>
+
+    `;
+
+}
+
+
+function loadTaxSample() {
+
+    document.getElementById("taxItems")
+        .innerHTML =
+        taxSample.map(createTaxRow).join("");
+
+    calculateTax();
+
+}
+
+
+function addTaxItem() {
+
+    document.getElementById("taxItems")
+        .insertAdjacentHTML(
+            "beforeend",
+
+            createTaxRow({
+
+                name: "새 공사비 항목",
+
+                amount: 0,
+
+                classification: "검토",
+
+                judgment: "추가 확인"
+
+            })
+
+        );
+
+}
+
+
+function calculateTax() {
+
+    let total = 0;
+
+    let base = 0;
+
+    let review = 0;
+
+
+    const rows =
+        document.querySelectorAll(
+            "#taxItems .tax-row"
+        );
+
+
+    rows.forEach(row => {
+
+        const inputs =
+            row.querySelectorAll("input");
+
+        const select =
+            row.querySelector("select");
+
+
+        const amount =
+            Number(inputs[1].value) || 0;
+
+        const classification =
+            select.value;
+
+
+        total += amount;
+
+
+        if(classification === "포함") {
+
+            base += amount;
+
+        }
+
+
+        if(classification === "검토") {
+
+            review += amount;
+
+        }
+
+    });
+
+
+    const rate =
+        Number(
+            document.getElementById("taxRate").value
+        ) || 0;
+
+
+    const tax =
+        base * rate;
+
+
+    document.getElementById("taxTotal")
+        .textContent = money(total);
+
+    document.getElementById("taxBase")
+        .textContent = money(base);
+
+    document.getElementById("taxReviewAmount")
+        .textContent = money(review);
+
+    document.getElementById("taxAmount")
+        .textContent = money(tax);
+
+    document.getElementById("taxBaseInput")
+        .value = base;
+
+}
+
+
+function taxAIReview() {
+
+    loadTaxSample();
+
+    alert(
+
+        "취득세 예비검토가 실행되었습니다.\n\n" +
+
+        "실제 시스템에서는 준공내역서 → " +
+        "비용항목 추출 → 법령/판례 Rule 검색 → " +
+        "과세표준 판단 순으로 처리합니다."
+
+    );
+
+}
+
+
+/* =========================
+   보고서
+========================= */
+
+function createReport() {
+
+    const name =
+        document.getElementById("contractName").value;
+
+    const no =
+        document.getElementById("contractNo").value;
+
+    const amount =
+        Number(
+            document.getElementById("contractAmount").value
+        ) || 0;
+
+
+    document.getElementById("reportTitle")
+        .textContent = name;
+
+
+    document.getElementById("reportContract")
+        .innerHTML = `
+
+            계약번호:
+            ${no}
+
+            <br>
+
+            계약유형:
+            ${document.getElementById("contractType").value}
+
+            <br>
+
+            계약금액:
+            ${money(amount)}
+
+        `;
+
+
+    document.getElementById("reportProgress")
+        .textContent =
+        document.getElementById("progressRate").value + "%";
+
+
+    document.getElementById("reportTaxBase")
+        .textContent =
+        document.getElementById("taxBase").textContent;
+
+
+    document.getElementById("reportTax")
+        .textContent =
+        document.getElementById("taxAmount").textContent;
+
+}
+
+</script>
+
+</body>
+</html>
